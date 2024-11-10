@@ -18,7 +18,6 @@ from scipy import signal
 from detectors import S3FD
 from SyncNetInstance import *
 import warnings
-import random
 
 warnings.filterwarnings("ignore")
 
@@ -269,8 +268,6 @@ def main(args):
     # define detector model
     DET = S3FD(device='cuda')
 
-    i, video_path = args
-    dir_path = os.path.join("/", *video_path.split("/")[:-1])
     listdir = os.listdir(dir_path)
     for path in listdir:
         if path.endswith(".csv"):
@@ -284,7 +281,7 @@ def main(args):
     video_dir = pathes[-2]
     video_name = pathes[-1].split(".")[0]
     output_path = video_dir + "_" + video_name
-    print(i, output_path, "is being processed")
+    print(idx, output_path, "is being processed")
 
     # log path to store validation per video
     video_validation_log = os.path.join(os.path.dirname(video_path), video_name + '.csv')
@@ -306,7 +303,7 @@ def main(args):
         end_time = time_steps[interval+1]
 
         try:
-            process(i, video_path, interval, start_time, end_time, output_path, video_validation_log, s, DET, st, time_log)
+            process(video_path, interval, start_time, end_time, output_path, video_validation_log, s, DET, st, time_log)
         except Exception as e:
             with open('exceptions.log', 'a') as f:
                 f.write(f'{video_path},{interval}, {e}\n')
@@ -321,7 +318,7 @@ def main(args):
     with open(opt.logs, 'a') as f:
         f.write(f"{video_path}\n")
 
-def process(i, video_path, interval, start_time, end_time, output_path, video_validation_log, s, DET, st, time_log):
+def process(video_path, interval, start_time, end_time, output_path, video_validation_log, s, DET, st, time_log):
     # i, (video_path, interval, start_time) = args
     output_path = output_path + "_" + str(interval)
     opt = Args(video_path, os.path.join("processing", output_path))
