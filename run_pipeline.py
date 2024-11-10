@@ -262,11 +262,20 @@ def scene_detect(opt):
 # # EXECUTE DEMO
 # ========== ========== ========== ==========
 def main(args):
+    # assign args elements
+    idx, video_path, n_gpu = args[0], args[1][0], args[1][1]
+
+    # specify gpu to use
+    gpu_id = idx % n_gpu
+    device = f"cuda:{gpu_id}"
+    torch.cuda.set_device(gpu_id) # working multi-gpu
+
     # define syncnet model
     s = SyncNetInstance()
     s.loadParameters("data/syncnet_v2.model")
     # define detector model
-    DET = S3FD(device='cuda')
+    DET = S3FD(device=device)
+    dir_path = os.path.dirname(video_path)
 
     listdir = os.listdir(dir_path)
     for path in listdir:
@@ -431,7 +440,9 @@ if __name__ == "__main__":
     print("-" * 100)
 
     num_workers = os.cpu_count()
+    num_gpu = torch.cuda.device_count()
+    tasks = [(video_to_process, num_gpu) for video_to_process in videos_to_process]
 
     with Pool(num_workers) as pool:
-        pool.map(main, enumerate(videos_to_process))
+        pool.map(main, enumerate(tasks))
     print(time.time() - START_TIME)
