@@ -283,11 +283,7 @@ def main(args):
             csv_path = path
             break
     df = pd.read_csv(os.path.join(dir_path, csv_path), header=None)
-
-    with open('path.log', 'a') as f:
-        f.write(f"{os.path.join(dir_path, csv_path)}\n")
-
-    time_steps = [float(df[2].iloc()[i]) for i, j in enumerate(df[1].iloc()) if j == "OK"] # error occurs
+    time_steps = [float(df[2].iloc()[i]) for i, j in enumerate(df[1].iloc()) if j == "OK"]
 
     # print statement
     pathes = video_path.split("/")
