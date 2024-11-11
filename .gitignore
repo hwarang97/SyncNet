@@ -10,3 +10,4 @@ venv/
 # SyncNet data
 data/
 detectors/
+processing/
