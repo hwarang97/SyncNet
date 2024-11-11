@@ -303,6 +303,10 @@ def main(args):
         f.write(f"{video_path}")
 
     # TODO: 첫 구간도 추가 (구간 추가시, postproceeing 로직 가져오기)
+
+    # test
+    time_loop_s = time.time()
+
     for interval in range(0, 49):
         st = time.time()
         start_time = int((time_steps[interval+1] + time_steps[interval]) // 2)
@@ -311,18 +315,31 @@ def main(args):
         start_time = time_steps[interval]
         end_time = time_steps[interval+1]
 
-        try:
-            process(video_path, interval, start_time, end_time, output_path, video_validation_log, s, DET, st, time_log)
-        except Exception as e:
-            with open('exceptions.log', 'a') as f:
-                f.write(f'{video_path},{interval}, {e}\n')
+        # test
+        while True:
+            try:
+                process(video_path, interval, start_time, end_time, output_path, video_validation_log, s, DET, st, time_log)
+                break
+            except Exception as e:
+                with open('exceptions.log', 'a') as f:
+                    f.write(f'{video_path},{interval}, {e}\n')
 
-            with open(video_validation_log, "a") as f:
-                # f.write(f"{opt.videofile},{start_time-1},{offset},{minval:.3f},{conf:.3f},{time.time() - st:.3f}\n")
-                f.write(",None")
-            with open(time_log, "a") as f:
-                # f.write(f"{opt.videofile},{start_time-1},{offset},{minval:.3f},{conf:.3f},{time.time() - st:.3f}\n")
-                f.write(f",-{time.time() - st:.3f}")
+                # with open(video_validation_log, "a") as f:
+                #     # f.write(f"{opt.videofile},{start_time-1},{offset},{minval:.3f},{conf:.3f},{time.time() - st:.3f}\n")
+                #     f.write(",None")
+                # with open(time_log, "a") as f:
+                #     # f.write(f"{opt.videofile},{start_time-1},{offset},{minval:.3f},{conf:.3f},{time.time() - st:.3f}\n")
+                #     f.write(f",-{time.time() - st:.3f}")
+
+    with open('time.log', 'a') as f:
+        f.write(f"loop_time: {time.time() - time_loop_s}:2f")
+
+    time_del_s = time.time()
+    del DET
+    torch.cuda.empty_cache()
+    with open('time.log', 'a') as f:
+        f.write(f"delete_time: {time.time() - time_del_s}:2f")
+
 
     with open(opt.logs, 'a') as f:
         f.write(f"{video_path}\n")
@@ -427,7 +444,7 @@ if __name__ == "__main__":
     videos = [
         str(path)
         for path in Path(opt.data_root).rglob("*.mkv")
-        if not path.name.startswith(".")][:4]
+        if not path.name.startswith(".")][:32]
 
     if not os.path.exists(opt.logs):
         with open(opt.logs, "w") as f:
